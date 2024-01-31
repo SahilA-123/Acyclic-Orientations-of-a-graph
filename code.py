@@ -162,7 +162,7 @@ def helper(G, globO, m, k):
     
 
 
-def acyclic_orientations(G, data_structure=None, sparse=None):
+def acyclic_orientations(G):
 
     # Reorder vertices based on the logic in reorder_vertices function
     vertex_labels = reorder_vertices(G)

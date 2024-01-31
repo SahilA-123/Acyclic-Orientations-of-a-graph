@@ -66,22 +66,26 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
     
     #creating a poset
     Poset = {}
-    for (u, v) in keys[starting_of_Ek : m - 1]:
-        for (w, x) in keys[starting_of_Ek : m - 1]:
-            Poset[(u,v), (w,x)] = 0
+    for i in range(starting_of_Ek, m - 1):
+        for j in range(starting_of_Ek, m - 1):
+            u, v = keys[i]
+            w, x = keys[j]
+            Poset[(u, v), (w, x)] = 0
             
     #create a new graph so that we can know which are the vertices reachable from each vertex v.
     new_G = DiGraph()
-    for (u, v) in keys[0:starting_of_Ek]:
-        if (globO[(u, v)] == 1):
+    for i in range(0, starting_of_Ek):
+        u, v = keys[i]
+        if globO[(u, v)] == 1:
             new_G.add_edge(v, u)
         else:
             new_G.add_edge(u, v)
 
-    for (u, v) in keys[starting_of_Ek : m - 1]:
-        if (not new_G.has_vertex(u)):
+    for i in range(starting_of_Ek, m - 1):
+        u, v = keys[i]
+        if not new_G.has_vertex(u):
             new_G.add_vertex(u)
-        elif (not new_G.has_vertex(v)):
+        elif not new_G.has_vertex(v):
             new_G.add_vertex(v)
 
 
@@ -90,10 +94,11 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
     else:
         new_G.add_edge(k-1, k)
     
-    #fill the values of the Poset
-    for (u, v) in keys[starting_of_Ek : m - 1]:
-        for (w, x) in keys[starting_of_Ek : m - 1]:
-            #w should be reachable from u and v should be reachable from x
+    for i in range(starting_of_Ek, m - 1):
+        for j in range(starting_of_Ek, m - 1):
+            u, v = keys[i]
+            w, x = keys[j]
+            # w should be reachable from u and v should be reachable from x
             if (new_G.shortest_path_length(u, w) < Infinity and new_G.shortest_path_length(x, v) < Infinity):
                 Poset[(u, v), (w, x)] = 1
 
@@ -105,9 +110,9 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
             upsets.append(list(subset))
     
     for upset in upsets:
-        
-        for (u, v) in keys[starting_of_Ek:m-1]:
-            if ((u,v) in upset):
+        for i in range(starting_of_Ek, m - 1):
+            u, v = keys[i]
+            if (u, v) in upset:
                 globO[(u, v)] = 1
             else:
                 globO[(u, v)] = 0

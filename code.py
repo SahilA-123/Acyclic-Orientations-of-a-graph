@@ -62,9 +62,9 @@ def is_upset_of_poset(Poset, subset, keys):
     return True
 
 
-def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
+def generate_orientations(globO, starting_of_Ek, m, k, keys):
     
-    #creating a poset
+    # Creating a poset
     Poset = {}
     for i in range(starting_of_Ek, m - 1):
         for j in range(starting_of_Ek, m - 1):
@@ -72,7 +72,7 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
             w, x = keys[j]
             Poset[(u, v), (w, x)] = 0
             
-    #create a new graph so that we can know which are the vertices reachable from each vertex v.
+    # Create a new graph to determine reachable vertices
     new_G = DiGraph()
     for i in range(0, starting_of_Ek):
         u, v = keys[i]
@@ -88,7 +88,6 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
         elif not new_G.has_vertex(v):
             new_G.add_vertex(v)
 
-
     if (globO[(k-1, k)] == 1):
         new_G.add_edge(k, k - 1)
     else:
@@ -102,8 +101,7 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
             if (new_G.shortest_path_length(u, w) < Infinity and new_G.shortest_path_length(x, v) < Infinity):
                 Poset[(u, v), (w, x)] = 1
 
-    #for each subset of the base set of E_k, we will check
-    #if it is an upset or not 
+    # For each subset of the base set of E_k, check if it is an upset or not 
     upsets = []
     for subset in Subsets(keys[starting_of_Ek:m-1]):
         if (is_upset_of_poset(Poset, subset, keys[starting_of_Ek:m-1])):
@@ -117,8 +115,8 @@ def generate_orientations(globO, orientations, starting_of_Ek, m, k, keys):
             else:
                 globO[(u, v)] = 0
 
-        orientations.append(globO.copy())
-        
+        yield globO.copy()
+
 
 def helper(G, globO, m, k):
     
@@ -126,7 +124,8 @@ def helper(G, globO, m, k):
     keys = keys[0:m]
     
     if m <= 0:
-        return [{}]
+        yield {}
+        return
 
     starting_of_Ek = 0
     for (u, v) in keys:
@@ -135,31 +134,24 @@ def helper(G, globO, m, k):
         else:
             starting_of_Ek += 1
     
-    #s is the size of E_k
+    # s is the size of E_k
     s = m - 1 - starting_of_Ek
     
+    # Recursively generate acyclic orientations
     orientations_G_small = helper(G, globO, starting_of_Ek, k - 2)
     
-    #saving all the globO's here.
-    orientations = []
-        
-    #for each orientation of G_k-2, we will fill the values of Poset by 1/0
+    # For each orientation of G_k-2, yield acyclic orientations
     for alpha in orientations_G_small:
-        
         for (u, v) in alpha:
             globO[(u, v)] = alpha[(u, v)]
             
-        #orienting H_k as 1
+        # Orienting H_k as 1
         globO[(k-1, k)] = 1
-        generate_orientations(globO, orientations, starting_of_Ek, m, k, keys)
+        yield from generate_orientations(globO, starting_of_Ek, m, k, keys)
                 
-        #orienting H_k as 0
+        # Orienting H_k as 0
         globO[(k-1, k)] = 0
-        generate_orientations(globO, orientations, starting_of_Ek, m, k, keys)
-        
-             
-    return orientations
-    
+        yield from generate_orientations(globO, starting_of_Ek, m, k, keys)
 
 
 def acyclic_orientations(G):
@@ -189,9 +181,12 @@ def acyclic_orientations(G):
 
     # Call helper function to get acyclic orientations
     orientations = helper(G, globO, m, k)
+    count = 0
     for o in orientations:
         print(o)
-    print(len(orientations))
+        count += 1
+    print(count)
+        
         
 # Example usage
 G = graphs.CompleteGraph(5)

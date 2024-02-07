@@ -171,6 +171,11 @@ def acyclic_orientations(G):
     k = len(vertex_labels)
     print(vertex_labels)
     print(edge_labels)
+    
+#     vertex_map = {old_label: new_label for new_label, old_label in enumerate(vertex_labels)}
+    
+#     for edge, label in edge_labels.items():
+#         print("Edge:", {vertex_map[edge[0]], vertex_map[edge[1]]}, "Label:", label)
 
     # Call helper function to get acyclic orientations
     orientations = helper(G, globO, m, k)
